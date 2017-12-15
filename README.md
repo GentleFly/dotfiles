@@ -10,11 +10,28 @@ command `dotfiles help`.
 
 **WARNING:** backup your files :) I need help for test it.
 
-## Example to use it
+## Main idea of management of user's dotfiles, based on symlinks
 
-### Install
+ *  A `~/.dotfiles/home` directory that contains all of the dotfiles themselves.
+    These are all managed in a git repo.
 
-#### Install separately
+    ```bash
+    $ ls -l ~/.dotfiles/home/.bashrc ~/.dotfiles/home/.vimrc
+    -rw-r--r-- 1 user Отсутствует 8.5K Dec 11 22:52 /home/user/.dotfiles/home/.bashrc
+    -rw-r--r-- 1 user Отсутствует  12K Nov 30 19:41 /home/user/.dotfiles/home/.vimrc
+    ```
+
+ *  A script, also in `~/.dotfiles/home` that creates the required links into my
+    home directory. I don't have any dotfiles in my home directory, only links
+    into `~/.dotfiles/home`. For example:
+
+    ```bash
+    $ ls -l ~/.bashrc ~/.vimrc
+    lrwxrwxrwx 1 user Отсутствует 38 Dec 13 19:30 /home/user/.bashrc -> /home/user/.dotfiles/home/.bashrc
+    lrwxrwxrwx 1 user Отсутствует 37 Dec 13 19:31 /home/user/.vimrc -> /home/user/.dotfiles/home/.vimrc
+    ```
+
+## Install
 
 1.  Make directory for your dotfiles. Example:
 
@@ -26,7 +43,7 @@ command `dotfiles help`.
     or another)
 
     ```bash
-    $ git clone https://bitbucket.org/GentleFly/dotfiles ~/dotfiles_script
+    $ git clone https://github.com/GentleFly/dotfiles ~/dotfiles_script
     ```
 
 3.  In your `~/.bashrc`, define name of directory for yours dotfiles and add
@@ -35,6 +52,7 @@ command `dotfiles help`.
     ```bash
     # Define path for yours dotfiles:
     export DOTFILES_DIR="$HOME/.dotfiles"
+
     # Include bash script `dotfiles.sh`:
     if [[ -f ${HOME}/dotfiles_script/dotfiles.sh ]] ; then
         source ${HOME}/dotfiles_script/dotfiles.sh
@@ -45,103 +63,81 @@ command `dotfiles help`.
 
 4.  Reload bash.
 
-#### Install as `git submodule`
+## Include your files in "dotfiles"
 
-1.  Create new repository:
-
-    ```bash
-    $ mkdir ~/.dotfiles
-    $ cd ~/.dotfiles
-    $ git init
-    ```
-
-2.  Add in your repository as submodule:
-
-    ```bash
-    $ git submodule add https://bitbucket.org/GentleFly/dotfiles
-    ```
-
-3.  In your `~/.bashrc`, define name of directory for yours dotfiles and add
-    `dotfiles.sh` as source:
-
-    ```bash
-    # Define path for yours dotfiles:
-    export DOTFILES_DIR="$HOME/.dotfiles"
-    # Include bash script `dotfiles.sh`:
-    if [[ -f ${DOTFILES_DIR}/dotfiles/dotfiles.sh ]] ; then
-        source ${DOTFILES_DIR}/dotfiles/dotfiles.sh
-    fi
-    # for use once times, use this line in command line:
-    #    source ~/dotfiles/dotfiles.sh
-    ```
-
-4.  Reload bash.
-
-### Start to use
-
-#### Include your files in "dotfiles"
-
-Add, in dotfiles, your files (example):
+For adding, in dotfiles your files, use command `dotfiles include` (example):
 
 ```bash
-$ ls -a ~/.dotfiles/home/
-./  ../
-$ ls -a ~/
-./  ../  .bashrc  .vimrc
+$ ls -l ~/.bashrc ~/.vimrc
+-rw-r--r-- 1 user Отсутствует 8.5K Dec 15 07:42 /home/user/.bashrc
+-rw-r--r-- 1 user Отсутствует  12K Dec 15 07:42 /home/user/.vimrc
+
+$ ls -l ~/.dotfiles/home/.bashrc ~/.dotfiles/home/.vimrc
+ls: cannot access '/home/user/.dotfiles/home/.bashrc': No such file or directory
+ls: cannot access '/home/user/.dotfiles/home/.vimrc': No such file or directory
+
 $ dotfiles include ~/.bashrc ~/.vimrc
+file "/home/user/.bashrc" was copied to "/home/user/.dotfiles/home/.bashrc"
+symlink was created: /home/user/.dotfiles/home/.bashrc
+file "/home/user/.vimrc" was copied to "/home/user/.dotfiles/home/.vimrc"
+symlink was created: /home/user/.dotfiles/home/.vimrc
 ```
 
 Then, in directory `~/.dotfiles/home/` will moved this files:
 
 ```bash
-$ ls -a ~/.dotfiles/home/
-./  ../  .bashrc  .vimrc
+$ ls -l ~/.dotfiles/home/.bashrc ~/.dotfiles/home/.vimrc
+-rw-r--r-- 1 user Отсутствует 8.5K Dec 15 07:46 /home/user/.dotfiles/home/.bashrc
+-rw-r--r-- 1 user Отсутствует  12K Dec 15 07:46 /home/user/.dotfiles/home/.vimrc
 ```
 
 And in `~/` directory will created symlink to this files:
 
 ```bash
-$ ls -a ~/
-./  ../  .bashrc@  .vimrc@
+$ ls -l ~/.bashrc ~/.vimrc
+lrwxrwxrwx 1 user Отсутствует 38 Dec 15 07:46 /home/user/.bashrc -> /home/user/.dotfiles/home/.bashrc
+lrwxrwxrwx 1 user Отсутствует 37 Dec 15 07:46 /home/user/.vimrc -> /home/user/.dotfiles/home/.vimrc
 ```
 
-#### Exclude your files from "dotfiles"
+## Exclude your files from "dotfiles"
 
 For exclude yours file from "dotfiles" use command `dotfiles exclude`.
 Then, in home (~/) directory will be deleted symlinks for this files, and 
 in home (~/) directory will be moved this files from `$DOTFILES_DIR/home`.
 
 ```bash
-$ ls -a ~/.dotfiles/home/
-./  ../  .bashrc  .vimrc
-$ ls -a ~/
-./  ../  .bashrc@  .vimrc@
 $ dotfiles exclude ~/.bashrc ~/.vimrc
-$ ls -a ~/.dotfiles/home/
-./  ../
-$ ls -a ~/
-./  ../  .bashrc  .vimrc
+symlink "/home/user/.bashrc" was replaced file "/home/user/.dotfiles/home/.bashrc"
+file "/home/user/.dotfiles/home/.bashrc" deleted!
+symlink "/home/user/.vimrc" was replaced file "/home/user/.dotfiles/home/.vimrc"
+file "/home/user/.dotfiles/home/.vimrc" deleted!
+
+$ ls -l ~/.dotfiles/home/.bashrc ~/.dotfiles/home/.vimrc
+ls: cannot access '/home/user/.dotfiles/home/.bashrc': No such file or directory
+ls: cannot access '/home/user/.dotfiles/home/.vimrc': No such file or directory
+
+$ ls -l ~/.bashrc ~/.vimrc
+-rw-r--r-- 1 user Отсутствует 8.5K Dec 15 07:52 /home/user/.bashrc
+-rw-r--r-- 1 user Отсутствует  12K Dec 15 07:52 /home/user/.vimrc
 ```
 
-### Install your "dotfiles" on new machine. Example
-
-#### if you use "dotfiles" separately
+## Install your "dotfiles" on new machine. Example
 
 ```bash
-$ cp dotfiles_from_old_machine ~/.dotfiles/
-$ git clone https://bitbucket.org/GentleFly/dotfiles ~/dotfiles_script
+$ git clone https://bitbucket.org/YourUserName/YourDotFiles ~/.dotfiles
+$ git clone https://github.com/GentleFly/dotfiles ~/dotfiles_script
 $ export DOTFILES_DIR="~/.dotfiles"
 $ source ~/dotfiles_script/dotfiles.sh
 $ dotfiles setup_all
-```
-
-#### if you use "dotfiles" as `git submodule`
-
-```bash
-$ git clone --recurse-submodules https://domen.org/yours_dotfiles ~/.dotfiles
-$ export DOTFILES_DIR="~/.dotfiles"
-$ source ~/.dotfiles/dotfiles/dotfiles.sh
-$ dotfiles setup_all
+created symlink: "/home/user/.bashrc" -> "/home/user/.dotfiles/home/.bashrc"
+created symlink: "/home/user/.config/mc/filehighlight.ini" -> "/home/user/.dotfiles/home/.config/mc/filehighlight.ini"
+created symlink: "/home/user/.config/mc/mc.ext" -> "/home/user/.dotfiles/home/.config/mc/mc.ext"
+created symlink: "/home/user/.dircolors" -> "/home/user/.dotfiles/home/.dircolors"
+created symlink: "/home/user/.gitconfig" -> "/home/user/.dotfiles/home/.gitconfig"
+created symlink: "/home/user/.inputrc" -> "/home/user/.dotfiles/home/.inputrc"
+created symlink: "/home/user/.local/share/mc/skins/solarized.ini" -> "/home/user/.dotfiles/home/.local/share/mc/skins/solarized.ini"
+created symlink: "/home/user/.minttyrc" -> "/home/user/.dotfiles/home/.minttyrc"
+created symlink: "/home/user/.vimrc" -> "/home/user/.dotfiles/home/.vimrc"
 ```
 
 ## dotfiles help
@@ -188,39 +184,5 @@ In file `msys2_shell.cmd` uncomment line:
 
 ```bat
 set MSYS=winsymlinks:nativestrict
-```
-
-## Customize Local Settings
-
-### Git
-
-Create file `~/.gitconfig.local` and add in file `~/.gitconfig`:
-
-```gitconfig
-# Use separate file for username / github token / etc
-[include]
-    path = ~/.gitconfig.local
-```
-
-### Bash
-
-Create file `~/.bashrc.local` and add in file `~/.bashrc`:
-
-```bash
-# Local customized path and environment settings, etc.
-if [ -f ~/.bashrc.local ]; then
-    . ~/.bashrc.local
-fi
-```
-
-### Vim
-
-You can add the following to the end of your .vimrc file to enable overriding:
-
-```vimscript
-let $LOCALFILE=expand("~/.vimrc_local")
-if filereadable($LOCALFILE)
-    source $LOCALFILE
-endif
 ```
 

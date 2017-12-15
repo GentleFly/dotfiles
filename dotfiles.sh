@@ -127,9 +127,9 @@ _dotfiles_setup_file() { #{{{
 
     ln -sf ${source_file} ${target_file}
     if [ $? -eq 0 ]; then
-        echo "symlink was created: ${source_file} "
+        echo "created symlink: \"${target_file}\" -> \"${source_file}\" "
     else
-        echo "Error: symlink was not created: ${source_file} "
+        echo "Error: symlink was not created: \"${target_file}\" -> \"${source_file}\" "
         return 1
     fi
 
