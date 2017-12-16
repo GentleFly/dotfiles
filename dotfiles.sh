@@ -11,7 +11,7 @@ _dotfiles_sys_home_dir=~/
 _dotfiles_sys_root_dir=/
 
 _dotfiles_commands_inc="include reinclude exclude"
-_dotfiles_commands_set="setup try_setup try_setup_all unsetup unsetup_all list"
+_dotfiles_commands_set="setup try_setup unsetup list"
 _dotfiles_commands_help="help"
 _dotfiles_commands="${_dotfiles_commands_inc} ${_dotfiles_commands_set} ${_dotfiles_commands_help}"
 
@@ -345,40 +345,24 @@ _dotfiles_unsetup_file() { #{{{
 _dotfiles_unsetup() { #{{{
 
     if [ $# == 0 ] ; then
-        #_dotfiles_help
-        echo "_dotfiles_unsetup: error: files not find!"
-        echo " use: dotfiles unsetup {dotfilerepo/file}"
-        return 1
+        if [ -d ${_dotfiles_home_dir} ] ; then
+            for source_file in $(find ${_dotfiles_home_dir} -type f)
+            do
+                _dotfiles_unsetup_file ${source_file}
+            done
+        fi
+        if [ -d ${_dotfiles_root_dir} ] ; then
+            for source_file in $(find ${_dotfiles_root_dir} -type f)
+            do
+                _dotfiles_unsetup_file ${source_file}
+            done
+        fi
+    else
+        for source_file in ${*} ; do
+            _dotfiles_unsetup_file ${source_file}
+        done
     fi
 
-    for source_file in ${*}
-    do
-        _dotfiles_unsetup_file ${source_file}
-    done
-
-    return 0
-} #}}}
-
-_dotfiles_unsetup_all() { #{{{
-
-    _dotfiles_check_access $0
-    if [ $? -ne 0 ]; then
-        echo ERROR:
-        echo -e "\tIn MSYS2, run shell as Admin!"
-        echo -e "\tIn Linux, use sudo!"
-        return 1
-    fi
-
-    # TODO: check dir exist ???
-    for source_file in $(find ${_dotfiles_home_dir} -type f)
-    do
-        _dotfiles_unsetup_file ${source_file}
-    done
-    # TODO: check dir exist ???
-    for source_file in $(find ${_dotfiles_root_dir} -type f)
-    do
-        _dotfiles_unsetup_file ${source_file}
-    done
 
     return 0
 } #}}}
@@ -623,8 +607,8 @@ _dotfiles_help() {  #{{{
     echo "                    in \"dotfiles dir\""
     echo "    setup         - same as command \"setup\", but for all files recursively"
     echo "                    in \"dotfiles dir\""
-    echo "    unsetup       - delete symlink in \"system dir\" for file in \"dotfiles dir\""
-    echo "    unsetup_all   - same as command \"unsetup\", but for all files recursively"
+    echo "    unsetup [files- delete symlink in \"system dir\" for file in \"dotfiles dir\""
+    echo "    unsetup       - same as command \"unsetup\", but for all files recursively"
     echo "                    in \"dotfiles dir\""
     echo "    help          - print this massage"
     echo ""
