@@ -11,7 +11,7 @@ _dotfiles_sys_home_dir=~/
 _dotfiles_sys_root_dir=/
 
 _dotfiles_commands_inc="include reinclude exclude"
-_dotfiles_commands_set="setup try_setup unsetup list"
+_dotfiles_commands_set="setup fsetup unsetup list"
 _dotfiles_commands_help="help"
 _dotfiles_commands="${_dotfiles_commands_inc} ${_dotfiles_commands_set} ${_dotfiles_commands_help}"
 
@@ -184,11 +184,10 @@ _dotfiles_backup() { #{{{
 } #}}}
 
 
-_dotfiles_setup_file() { #{{{
+_dotfiles_fsetup_file() { #{{{
     # use:
-    # $ _dotfiles_setup_file ./home/home_dotfiles.test
-    # $ _dotfiles_setup_file ./root/root_dotfiles.test
-    # $ func_name src_file_from_dotfiles
+    # $ _dotfiles_fsetup_file ./home/home_dotfiles.test
+    # $ _dotfiles_fsetup_file ./root/root_dotfiles.test
     local source_file=$(realpath ${1})
     local target_file=$(_dotfiles_convert_path_dotfile_to_system_for_file "${source_file}")
     if [ $? -ne 0 ]; then
@@ -213,7 +212,7 @@ _dotfiles_setup_file() { #{{{
     return 0
 } #}}}
 
-_dotfiles_setup() { #{{{
+_dotfiles_fsetup() { #{{{
 
     _dotfiles_check_access $0
     if [ $? -ne 0 ]; then
@@ -227,13 +226,13 @@ _dotfiles_setup() { #{{{
         if [ -d ${_dotfiles_home_dir} ] ; then
             for source_file in $(find ${_dotfiles_home_dir} -type f)
             do
-                _dotfiles_setup_file ${source_file}
+                _dotfiles_fsetup_file ${source_file}
             done
         fi
         if [ -d ${_dotfiles_root_dir} ] ; then
             for source_file in $(find ${_dotfiles_root_dir} -type f)
             do
-                _dotfiles_setup_file ${source_file}
+                _dotfiles_fsetup_file ${source_file}
             done
         fi
     else
@@ -247,7 +246,7 @@ _dotfiles_setup() { #{{{
             if ! [ -L ${target_file} ] && [ -f ${target_file} ] ; then
                 _dotfiles_backup ${target_file}
             fi
-            _dotfiles_setup_file ${source_file}
+            _dotfiles_fsetup_file ${source_file}
         done
     fi
 
@@ -255,10 +254,10 @@ _dotfiles_setup() { #{{{
 } #}}}
 
 
-_dotfiles_try_setup_file() { #{{{
+_dotfiles_setup_file() { #{{{
     # use:
-    # $ _dotfiles_try_setup_file ./home/home_dotfiles.test
-    # $ _dotfiles_try_setup_file ./root/root_dotfiles.test
+    # $ _dotfiles_setup_file ./home/home_dotfiles.test
+    # $ _dotfiles_setup_file ./root/root_dotfiles.test
     # $ func_name src_file_from_dotfiles
     local source_file=$(realpath ${1})
     local target_file=$(_dotfiles_convert_path_dotfile_to_system_for_file "${source_file}")
@@ -284,24 +283,24 @@ _dotfiles_try_setup_file() { #{{{
     return 0
 } #}}}
 
-_dotfiles_try_setup() { #{{{
+_dotfiles_setup() { #{{{
 
     if [ $# == 0 ] ; then
         if [ -d ${_dotfiles_home_dir} ] ; then
             for source_file in $(find ${_dotfiles_home_dir} -type f)
             do
-                _dotfiles_try_setup_file ${source_file}
+                _dotfiles_setup_file ${source_file}
             done
         fi
         if [ -d ${_dotfiles_root_dir} ] ; then
             for source_file in $(find ${_dotfiles_root_dir} -type f)
             do
-                _dotfiles_try_setup_file ${source_file}
+                _dotfiles_setup_file ${source_file}
             done
         fi
     else
         for source_file in ${*} ; do
-            _dotfiles_try_setup_file ${source_file}
+            _dotfiles_setup_file ${source_file}
         done
     fi
 
@@ -403,7 +402,7 @@ _dotfiles_include_file() { #{{{
         return 3
     fi
 
-    _dotfiles_setup_file ${target_file}
+    _dotfiles_fsetup_file ${target_file}
 
     return 0
 } #}}}
@@ -584,7 +583,6 @@ _dotfiles_list() { #{{{
 } #}}}
 
 
-# TODO: try_setup
 _dotfiles_help() {  #{{{
     echo "usage:"
     echo ""
@@ -598,14 +596,14 @@ _dotfiles_help() {  #{{{
     echo "                    create symlinks in \"system dir\" to files in \"dotfiles dir\""
     echo "    exclude       - remove symlinks in \"system dir\" and move files from"
     echo "                    \"dotfiles dir\" to \"system dir\""
-    echo "    try_setup [fil- trying creating symlink in \"system dir\" for files"
+    echo "    setup [files] - trying creating symlink in \"system dir\" for files"
     echo "                    in \"dotfiles dir\", if exist file with name same as"
     echo "                    potential symlink symlink, symlink will not created"
-    echo "    try_setup     - same as command \"try_setup\", but for all files recursively"
+    echo "    setup         - same as command \"try_setup\", but for all files recursively"
     echo "                    in \"dotfiles dir\""
-    echo "    setup [files] - force creating symlink in \"system dir\" for files"
+    echo "    fsetup [files]- force creating symlink in \"system dir\" for files"
     echo "                    in \"dotfiles dir\""
-    echo "    setup         - same as command \"setup\", but for all files recursively"
+    echo "    fsetup        - same as command \"setup\", but for all files recursively"
     echo "                    in \"dotfiles dir\""
     echo "    unsetup [files- delete symlink in \"system dir\" for file in \"dotfiles dir\""
     echo "    unsetup       - same as command \"unsetup\", but for all files recursively"
