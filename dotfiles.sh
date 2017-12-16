@@ -11,7 +11,7 @@ _dotfiles_sys_home_dir=~/
 _dotfiles_sys_root_dir=/
 
 _dotfiles_commands_inc="include reinclude exclude"
-_dotfiles_commands_set="setup setup_all try_setup try_setup_all unsetup unsetup_all list"
+_dotfiles_commands_set="setup try_setup try_setup_all unsetup unsetup_all list"
 _dotfiles_commands_help="help"
 _dotfiles_commands="${_dotfiles_commands_inc} ${_dotfiles_commands_set} ${_dotfiles_commands_help}"
 
@@ -224,55 +224,35 @@ _dotfiles_setup() { #{{{
     fi
 
     if [ $# == 0 ] ; then
-        #_dotfiles_help
-        echo "_dotfiles_setup: error: arguments for files not find!"
-        echo " use: dotfiles setup {dotfilerepo/file}"
-        return 1
-    fi
-
-    for source_file in ${*}
-    do
-        # TODO: check after creating function "exclude"
-        local target_file=$(_dotfiles_convert_path_dotfile_to_system_for_file "${source_file}")
-        if [ $? -ne 0 ]; then
-            # TODO: ???
-            return 2
+        if [ -d ${_dotfiles_home_dir} ] ; then
+            for source_file in $(find ${_dotfiles_home_dir} -type f)
+            do
+                _dotfiles_setup_file ${source_file}
+            done
         fi
-        if ! [ -L ${target_file} ] && [ -f ${target_file} ] ; then
-            _dotfiles_backup ${target_file}
+        if [ -d ${_dotfiles_root_dir} ] ; then
+            for source_file in $(find ${_dotfiles_root_dir} -type f)
+            do
+                _dotfiles_setup_file ${source_file}
+            done
         fi
-        _dotfiles_setup_file ${source_file}
-    done
-
-    return 0
-} #}}}
-
-_dotfiles_setup_all() { #{{{
-
-    _dotfiles_check_access $0
-    if [ $? -ne 0 ]; then
-        echo ERROR:
-        echo -e "\tIn MSYS2, run shell as Admin!"
-        echo -e "\tIn Linux, use sudo!"
-        return 1
-    fi
-
-    if [ -d ${_dotfiles_home_dir} ] ; then
-        for source_file in $(find ${_dotfiles_home_dir} -type f)
-        do
-            _dotfiles_setup_file ${source_file}
-        done
-    fi
-    if [ -d ${_dotfiles_root_dir} ] ; then
-        for source_file in $(find ${_dotfiles_root_dir} -type f)
-        do
+    else
+        for source_file in ${*} ; do
+            # TODO: check after creating function "exclude"
+            local target_file=$(_dotfiles_convert_path_dotfile_to_system_for_file "${source_file}")
+            if [ $? -ne 0 ]; then
+                # TODO: ???
+                return 2
+            fi
+            if ! [ -L ${target_file} ] && [ -f ${target_file} ] ; then
+                _dotfiles_backup ${target_file}
+            fi
             _dotfiles_setup_file ${source_file}
         done
     fi
 
     return 0
 } #}}}
-
 
 _dotfiles_try_setup_file() { #{{{
     # use:
@@ -652,9 +632,9 @@ _dotfiles_help() {  #{{{
     echo "                    potential symlink symlink, symlink will not created"
     echo "    try_setup_all - same as command \"try_setup\", but for all files recursively"
     echo "                    in \"dotfiles dir\""
-    echo "    setup         - force creating symlink in \"system dir\" for files"
+    echo "    setup [files] - force creating symlink in \"system dir\" for files"
     echo "                    in \"dotfiles dir\""
-    echo "    setup_all     - same as command \"setup\", but for all files recursively"
+    echo "    setup         - same as command \"setup\", but for all files recursively"
     echo "                    in \"dotfiles dir\""
     echo "    unsetup       - delete symlink in \"system dir\" for file in \"dotfiles dir\""
     echo "    unsetup_all   - same as command \"unsetup\", but for all files recursively"

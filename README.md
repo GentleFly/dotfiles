@@ -128,7 +128,7 @@ $ git clone https://bitbucket.org/YourUserName/YourDotFiles ~/.dotfiles
 $ git clone https://github.com/GentleFly/dotfiles ~/dotfiles_script
 $ export DOTFILES_DIR="~/.dotfiles"
 $ source ~/dotfiles_script/dotfiles.sh
-$ dotfiles setup_all
+$ dotfiles setup
 created symlink: "/home/user/.bashrc" -> "/home/user/.dotfiles/home/.bashrc"
 created symlink: "/home/user/.config/mc/filehighlight.ini" -> "/home/user/.dotfiles/home/.config/mc/filehighlight.ini"
 created symlink: "/home/user/.config/mc/mc.ext" -> "/home/user/.dotfiles/home/.config/mc/mc.ext"
