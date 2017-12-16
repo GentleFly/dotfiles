@@ -150,25 +150,25 @@ usage:
 
 commands:
 
-    include       - move files from "system dir" to "dotfiles dir" and create
-                    symlinks in "system dir" to files in "dotfiles dir"
-    reinclude     - force move files from "system dir" to "dotfiles dir" and
-                    create symlinks in "system dir" to files in "dotfiles dir"
-    exclude       - remove symlinks in "system dir" and move files from
-                    "dotfiles dir" to "system dir"
-    try_setup     - trying creating symlink in "system dir" for files
-                    in "dotfiles dir", if exist file with name same as
-                    potential symlink symlink, symlink will not created
-    try_setup_all - same as command "try_setup", but for all files recursively
-                    in "dotfiles dir"
-    setup         - force creating symlink in "system dir" for files
-                    in "dotfiles dir"
-    setup_all     - same as command "setup", but for all files recursively
-                    in "dotfiles dir"
-    unsetup       - delete symlink in "system dir" for file in "dotfiles dir"
-    unsetup_all   - same as command "unsetup", but for all files recursively
-                    in "dotfiles dir"
-    help          - print this massage
+    include   - Move files from "system dir" to "dotfiles dir" and create
+                symlinks in "system dir" to files in "dotfiles dir".
+    reinclude - Force move files from "system dir" to "dotfiles dir" and
+                create symlinks in "system dir" to files in "dotfiles dir".
+    exclude   - Remove symlinks in "system dir" and move files from
+                "dotfiles dir" to "system dir".
+    setup     - Trying creating symlink in "system dir" for files
+                in "dotfiles dir", if exist file with name same as potential
+                symlink, symlink will not created.
+              - This command without arguments [files] will be applied to all
+                files recursively in "dotfiles dir".
+    fsetup    - Force creating symlink in "system dir" for files
+                in "dotfiles dir".
+              - This command without arguments [files] will be applied to all
+                files recursively in "dotfiles dir".
+    unsetup   - Delete symlink in "system dir" for file in "dotfiles dir".
+              - This command without arguments [files] will be applied to all
+                files recursively in "dotfiles dir".
+    help      - print this massage
 
 "system dir"   - this "~/"(home) or "/"(root) directories
 "dotfiles dir" - this "~/.dotfilesrepo/home"(home dir in dotfiles dir) or
