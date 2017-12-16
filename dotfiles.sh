@@ -254,6 +254,7 @@ _dotfiles_setup() { #{{{
     return 0
 } #}}}
 
+
 _dotfiles_try_setup_file() { #{{{
     # use:
     # $ _dotfiles_try_setup_file ./home/home_dotfiles.test
@@ -286,39 +287,20 @@ _dotfiles_try_setup_file() { #{{{
 _dotfiles_try_setup() { #{{{
 
     if [ $# == 0 ] ; then
-        #_dotfiles_help
-        echo "_dotfiles_try_setup: error: files not find!"
-        echo " use: dotfiles try_setup {dotfilerepo/file}"
-        return 1
-    fi
-
-    for source_file in ${*}
-    do
-        _dotfiles_try_setup_file ${source_file}
-    done
-
-    return 0
-} #}}}
-
-_dotfiles_try_setup_all() { #{{{
-
-    _dotfiles_check_access $0
-    if [ $? -ne 0 ]; then
-        echo ERROR:
-        echo -e "\tIn MSYS2, run shell as Admin!"
-        echo -e "\tIn Linux, use sudo!"
-        return 1
-    fi
-
-    if [ -d ${_dotfiles_home_dir} ] ; then
-        for source_file in $(find ${_dotfiles_home_dir} -type f)
-        do
-            _dotfiles_try_setup_file ${source_file}
-        done
-    fi
-    if [ -d ${_dotfiles_root_dir} ] ; then
-        for source_file in $(find ${_dotfiles_root_dir} -type f)
-        do
+        if [ -d ${_dotfiles_home_dir} ] ; then
+            for source_file in $(find ${_dotfiles_home_dir} -type f)
+            do
+                _dotfiles_try_setup_file ${source_file}
+            done
+        fi
+        if [ -d ${_dotfiles_root_dir} ] ; then
+            for source_file in $(find ${_dotfiles_root_dir} -type f)
+            do
+                _dotfiles_try_setup_file ${source_file}
+            done
+        fi
+    else
+        for source_file in ${*} ; do
             _dotfiles_try_setup_file ${source_file}
         done
     fi
@@ -467,6 +449,7 @@ _dotfiles_include() { #{{{
     return 0
 } #}}}
 
+
 _dotfiles_reinclude_file() { #{{{
 
     if [ $# == 0 ] ; then
@@ -518,6 +501,7 @@ _dotfiles_reinclude() { #{{{
     return 0
 } #}}}
 
+
 _dotfiles_exclude_file() { #{{{
     # use:
     # $ _dotfiles_exclude ./home/home_dotfiles.test
@@ -568,6 +552,7 @@ _dotfiles_exclude() { #{{{
     return 0
 } #}}}
 
+
 _dotfiles_check_installed() { #{{{
     if [ $# -ne 1 ] ; then
         return 1
@@ -614,6 +599,8 @@ _dotfiles_list() { #{{{
     return 0
 } #}}}
 
+
+# TODO: try_setup
 _dotfiles_help() {  #{{{
     echo "usage:"
     echo ""
@@ -627,10 +614,10 @@ _dotfiles_help() {  #{{{
     echo "                    create symlinks in \"system dir\" to files in \"dotfiles dir\""
     echo "    exclude       - remove symlinks in \"system dir\" and move files from"
     echo "                    \"dotfiles dir\" to \"system dir\""
-    echo "    try_setup     - trying creating symlink in \"system dir\" for files"
+    echo "    try_setup [fil- trying creating symlink in \"system dir\" for files"
     echo "                    in \"dotfiles dir\", if exist file with name same as"
     echo "                    potential symlink symlink, symlink will not created"
-    echo "    try_setup_all - same as command \"try_setup\", but for all files recursively"
+    echo "    try_setup     - same as command \"try_setup\", but for all files recursively"
     echo "                    in \"dotfiles dir\""
     echo "    setup [files] - force creating symlink in \"system dir\" for files"
     echo "                    in \"dotfiles dir\""
@@ -654,7 +641,7 @@ _dotfiles_help() {  #{{{
 } #}}}
 
 # TODO:
-# source lib.sh
+# source dotfiles.sh
 dotfiles() { #{{{
 
 	_dotfiles_export_colors
