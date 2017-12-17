@@ -202,10 +202,11 @@ _dotfiles_fsetup_file() { #{{{
     fi
 
     ln -sf ${source_file} ${target_file}
-    if [ $? -eq 0 ]; then
-        echo "created symlink: \"${target_file}\" -> \"${source_file}\" "
+    local errormessage=$(ln -sf ${source_file} ${target_file} 2>&1)
+    if [[ "${errormessage}" == "" ]] ; then
+        echo -e "${source_file} <- ${Green}symlink created: ${target_file}${Color_Off}"
     else
-        echo "Error: symlink was not created: \"${target_file}\" -> \"${source_file}\" "
+        echo -e "${source_file} <- ${BRed}${errormessage}${Color_Off}"
         return 1
     fi
 
@@ -267,16 +268,14 @@ _dotfiles_setup_file() { #{{{
     fi
 
     if ! [ -d $(dirname ${target_file}) ]; then
-        echo "WARNING: dir $(dirname ${target_file}) is not exist!"
         mkdir -p $(dirname ${target_file})
-        echo "dir $(dirname ${target_file}) was created!"
     fi
 
-    ln -s ${source_file} ${target_file}
-    if [ $? -eq 0 ]; then
-        echo "symlink was created: ${source_file} "
+    local errormessage=$(ln -s ${source_file} ${target_file} 2>&1)
+    if [[ "${errormessage}" == "" ]] ; then
+        echo -e "${source_file} <- ${Green}symlink created: ${target_file}${Color_Off}"
     else
-        echo "Error: symlink was not created: ${source_file} "
+        echo -e "${source_file} <- ${BRed}${errormessage}${Color_Off}"
         return 1
     fi
 
@@ -330,9 +329,7 @@ _dotfiles_unsetup_file() { #{{{
         return 3
     fi
 
-    # TODO: exclude ???
-    # maby onli delete symlink?
-    #cp --remove-destination ${source_file} ${target_file}
+    # TODO :last
     rm ${target_file}
     if [ $? -eq 0 ]; then
         #echo -e "symlink \"${target_file}\" was replaced file \"${source_file}\""
