@@ -204,9 +204,11 @@ _dotfiles_fsetup_file() { #{{{
     ln -sf ${source_file} ${target_file}
     local errormessage=$(ln -sf ${source_file} ${target_file} 2>&1)
     if [[ "${errormessage}" == "" ]] ; then
-        echo -e "${source_file} <- ${Green}symlink created: ${target_file}${Color_Off}"
+        #echo -e "${source_file} <- ${Green}symlink created: ${target_file}${Color_Off}"
+        echo -e "${Green}ln -sf ${source_file} ${target_file}${Color_Off}"
     else
-        echo -e "${source_file} <- ${BRed}${errormessage}${Color_Off}"
+        echo -e "${BRed}ln -sf ${source_file} ${target_file}${Color_Off}"
+        echo -e "${BRed}${errormessage}${Color_Off}"
         return 1
     fi
 
@@ -273,9 +275,11 @@ _dotfiles_setup_file() { #{{{
 
     local errormessage=$(ln -s ${source_file} ${target_file} 2>&1)
     if [[ "${errormessage}" == "" ]] ; then
-        echo -e "${source_file} <- ${Green}symlink created: ${target_file}${Color_Off}"
+        #echo -e "${source_file} <- ${Green}symlink created: ${target_file}${Color_Off}"
+        echo -e "${Green}ln -s ${source_file} ${target_file}${Color_Off}"
     else
-        echo -e "${source_file} <- ${BRed}error: ${errormessage}${Color_Off}"
+        echo -e "${BRed}ln -s ${source_file} ${target_file}${Color_Off}"
+        echo -e "${BRed}error: ${errormessage}${Color_Off}"
         return 1
     fi
 
@@ -332,9 +336,11 @@ _dotfiles_unsetup_file() { #{{{
 
     local errormessage=$(rm ${target_file} 2>&1)
     if [[ "${errormessage}" == "" ]] ; then
-        echo -e "${source_file} <- ${Green}symlink deleted: ${target_file}${Color_Off}"
+        #echo -e "${source_file} <- ${Green}symlink deleted: ${target_file}${Color_Off}"
+        echo -e "${Green}rm ${target_file}${Color_Off}"
     else
-        echo -e "${source_file} <- ${BRed}error: ${errormessage}${Color_Off}"
+        echo -e "${BRed}rm ${target_file}"
+        echo -e "${BRed}error: ${errormessage}${Color_Off}"
         return 1
     fi
 
@@ -373,15 +379,22 @@ _dotfiles_include_file() { #{{{
     # $ _dotfiles_include_file /root_dotfiles.test
     # $ func_name src_file_from_sysfiles
 
+    #echo "${1}"
+
     # TODO: realpath -s
     if [[ -L ${1} ]] ; then
-        echo "_dotfiles_include_file: Error: file \"${1}\" is symlink!"
+        echo -e "${BRed}error: file \"${1}\" is symlink!"
         return 1
     fi
     local source_file=$(realpath -s ${1})
-    local target_file=$(_dotfiles_convert_path_system_to_dotfile_for_file "${source_file}")
-    if [[ $? -ne 0 ]] ; then
+
+    if   [[ "${source_file}" == *"${_dotfiles_home_dir}"* ]] ||
+         [[ "${source_file}" == *"${_dotfiles_root_dir}"* ]] ;
+    then # dotfile's directory ("~/.dotfiles/home/" or "~/.dotfiles/root/)
+        echo "error: bob"
         return 1
+    else # system directory ("/.." or "/..")
+        local target_file=$(_dotfiles_convert_path_system_to_dotfile_for_file "${source_file}")
     fi
 
     if ! [[ -d $(dirname ${target_file}) ]]; then
@@ -389,17 +402,17 @@ _dotfiles_include_file() { #{{{
     fi
 
     if [[ -f ${target_file} ]] ; then
-        echo "_dotfiles_include_file: Error: file \"${target_file}\" is exist!"
+        echo -e "${BRed}error: file \"${target_file}\" is exist!"
         return 2
     fi
 
-    cp "${source_file}" "${target_file}"
-
-    if [ $? -eq 0 ]; then
-        echo -e "file \"${source_file}\" was copied to \"${target_file}\""
+    local errormessage=$(cp "${source_file}" "${target_file}" 2>&1)
+    if [[ "${errormessage}" == "" ]] ; then
+        #echo -e "${source_file} copied to ${Green}${target_file}${Color_Off}"
+        echo -e "${Green}cp ${source_file} ${target_file}${Color_Off}"
     else
-        echo "Error: file was not copied: ${source_file} "
-        return 3
+        echo -e "${BRed}error: ${errormessage}${Color_Off}"
+        return 1
     fi
 
     _dotfiles_fsetup_file ${target_file}
