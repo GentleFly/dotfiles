@@ -275,7 +275,7 @@ _dotfiles_setup_file() { #{{{
     if [[ "${errormessage}" == "" ]] ; then
         echo -e "${source_file} <- ${Green}symlink created: ${target_file}${Color_Off}"
     else
-        echo -e "${source_file} <- ${BRed}${errormessage}${Color_Off}"
+        echo -e "${source_file} <- ${BRed}error: ${errormessage}${Color_Off}"
         return 1
     fi
 
@@ -311,30 +311,33 @@ _dotfiles_unsetup_file() { #{{{
     # use:
     # $ _dotfiles_unsetup_file ./home/home_dotfiles.test
     # $ _dotfiles_unsetup_file ./root/root_dotfiles.test
-    # $ func_name src_file_from_dotfiles
     local source_file=$(realpath ${1})
     if ! [ -f ${source_file} ]; then
-        echo "_dotfiles_unsetup_file: Error: \"${source_file}\" not exist!"
+        echo -e "${BRed}error: \"${source_file}\" not exist!"
         return 1
     fi
 
-    local target_file=$(_dotfiles_convert_path_dotfile_to_system_for_file "${source_file}")
-    if [ $? -ne 0 ]; then
-        echo "_dotfiles_unsetup_file: Error: _dotfiles_convert_path_dotfile_to_system_for_file"
-        return 2
+    if   [[ "${source_file}" == *"${_dotfiles_home_dir}"* ]] ||
+         [[ "${source_file}" == *"${_dotfiles_root_dir}"* ]] ;
+    then # dotfile's directory ("~/.dotfiles/home/" or "~/.dotfiles/root/)
+        local target_file=$(_dotfiles_convert_path_dotfile_to_system_for_file "${source_file}")
+    else # system directory ("/.." or "/..")
+        local target_file=${source_file}
     fi
 
     if ! [ -L ${target_file} ]; then
-        echo "_dotfiles_unsetup_file: Error: symlink \"${target_file}\" not exist!"
-        return 3
+        echo -e "${source_file} <- ${BRed}error: symlink not exist: \"${target_file}\"${Color_Off}"
+        return 1
     fi
 
-    # TODO :last
-    rm ${target_file}
-    if [ $? -eq 0 ]; then
-        #echo -e "symlink \"${target_file}\" was replaced file \"${source_file}\""
-        echo -e "symlink \"${target_file}\" was removed"
+    local errormessage=$(rm ${target_file} 2>&1)
+    if [[ "${errormessage}" == "" ]] ; then
+        echo -e "${source_file} <- ${Green}symlink deleted: ${target_file}${Color_Off}"
+    else
+        echo -e "${source_file} <- ${BRed}error: ${errormessage}${Color_Off}"
+        return 1
     fi
+
     return 0
 } #}}}
 
