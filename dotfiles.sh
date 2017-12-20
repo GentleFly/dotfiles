@@ -204,7 +204,6 @@ _dotfiles_fsetup_file() { #{{{
     ln -sf ${source_file} ${target_file}
     local errormessage=$(ln -sf ${source_file} ${target_file} 2>&1)
     if [[ "${errormessage}" == "" ]] ; then
-        #echo -e "${source_file} <- ${Green}symlink created: ${target_file}${Color_Off}"
         echo -e "${Green}ln -sf ${source_file} ${target_file}${Color_Off}"
     else
         echo -e "${BRed}ln -sf ${source_file} ${target_file}${Color_Off}"
@@ -275,7 +274,6 @@ _dotfiles_setup_file() { #{{{
 
     local errormessage=$(ln -s ${source_file} ${target_file} 2>&1)
     if [[ "${errormessage}" == "" ]] ; then
-        #echo -e "${source_file} <- ${Green}symlink created: ${target_file}${Color_Off}"
         echo -e "${Green}ln -s ${source_file} ${target_file}${Color_Off}"
     else
         echo -e "${BRed}ln -s ${source_file} ${target_file}${Color_Off}"
@@ -336,7 +334,6 @@ _dotfiles_unsetup_file() { #{{{
 
     local errormessage=$(rm ${target_file} 2>&1)
     if [[ "${errormessage}" == "" ]] ; then
-        #echo -e "${source_file} <- ${Green}symlink deleted: ${target_file}${Color_Off}"
         echo -e "${Green}rm ${target_file}${Color_Off}"
     else
         echo -e "${BRed}rm ${target_file}"
@@ -391,7 +388,7 @@ _dotfiles_include_file() { #{{{
     if   [[ "${source_file}" == *"${_dotfiles_home_dir}"* ]] ||
          [[ "${source_file}" == *"${_dotfiles_root_dir}"* ]] ;
     then # dotfile's directory ("~/.dotfiles/home/" or "~/.dotfiles/root/)
-        echo "error: bob"
+        echo -e "${BRed}error: file \"${1}\" locate in \"dotfiles\" dirs!"
         return 1
     else # system directory ("/.." or "/..")
         local target_file=$(_dotfiles_convert_path_system_to_dotfile_for_file "${source_file}")
@@ -406,9 +403,8 @@ _dotfiles_include_file() { #{{{
         return 2
     fi
 
-    local errormessage=$(cp "${source_file}" "${target_file}" 2>&1)
+    local errormessage=$(cp ${source_file} ${target_file} 2>&1)
     if [[ "${errormessage}" == "" ]] ; then
-        #echo -e "${source_file} copied to ${Green}${target_file}${Color_Off}"
         echo -e "${Green}cp ${source_file} ${target_file}${Color_Off}"
     else
         echo -e "${BRed}error: ${errormessage}${Color_Off}"
@@ -505,28 +501,30 @@ _dotfiles_exclude_file() { #{{{
     # $ func_name src_file_from_dotfiles
     local source_file=$(realpath ${1})
     if ! [ -f ${source_file} ]; then
-        echo "_dotfiles_exclude: Error: \"${source_file}\" not exist!"
+        echo -e "${BRed}error: file ${source_file} not exist${Color_Off}"
         return 1
     fi
 
-    local target_file=$(_dotfiles_convert_path_dotfile_to_system_for_file "${source_file}")
-    if [ $? -ne 0 ]; then
-        echo "_dotfiles_exclude: Error: _dotfiles_convert_path_dotfile_to_system_for_file"
-        return 2
+    if   [[ "${source_file}" == *"${_dotfiles_home_dir}"* ]] ||
+         [[ "${source_file}" == *"${_dotfiles_root_dir}"* ]] ;
+    then # dotfile's directory ("~/.dotfiles/home/" or "~/.dotfiles/root/)
+        local target_file=$(_dotfiles_convert_path_dotfile_to_system_for_file "${source_file}")
+    else # system directory ("/.." or "/..")
+        local target_file=${source_file}
     fi
 
     if ! [ -L ${target_file} ]; then
-        echo "_dotfiles_exclude: Error: symlink \"${target_file}\" not exist!"
+        echo -e "${BRed}error: symlink ${source_file} not exist${Color_Off}"
         return 3
     fi
 
-    cp --remove-destination ${source_file} ${target_file}
-    if [ $? -eq 0 ]; then
-        echo -e "symlink \"${target_file}\" was replaced file \"${source_file}\""
-    fi
-    rm ${source_file}
-    if [ $? -eq 0 ]; then
-        echo -e "file \"${source_file}\" deleted!"
+    local errormessage=$(cp --remove-destination ${source_file} ${target_file} 2>&1)
+    if [[ "${errormessage}" == "" ]] ; then
+        echo -e "${Green}cp --remove-destination ${source_file} ${target_file}${Color_Off}"
+    else
+        echo -e "${BRed}cp --remove-destination ${source_file} ${target_file}${Color_Off}"
+        echo -e "${BRed}error: ${errormessage}${Color_Off}"
+        return 1
     fi
     return 0
 } #}}}
