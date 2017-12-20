@@ -407,6 +407,7 @@ _dotfiles_include_file() { #{{{
     if [[ "${errormessage}" == "" ]] ; then
         echo -e "${Green}cp ${source_file} ${target_file}${Color_Off}"
     else
+        echo -e "${BRed}cp ${source_file} ${target_file}${Color_Off}"
         echo -e "${BRed}error: ${errormessage}${Color_Off}"
         return 1
     fi
@@ -447,24 +448,36 @@ _dotfiles_reinclude_file() { #{{{
     if [ $# == 0 ] ; then
         #_dotfiles_help
         echo "_dotfiles_reinclude_file: error: arguments for files not find!"
-        echo " use: dotfiles include {sysfile/file}"
+        echo " use: dotfiles reinclude {file}"
         return 1
     fi
 
-    for source_file in ${*}
-    do
+    local source_file=$(realpath -s ${1})
+
+    if   [[ "${source_file}" == *"${_dotfiles_home_dir}"* ]] ||
+         [[ "${source_file}" == *"${_dotfiles_root_dir}"* ]] ;
+    then # dotfile's directory ("~/.dotfiles/home/" or "~/.dotfiles/root/)
+        local target_file=${source_file}
+        local source_file=$(_dotfiles_convert_path_dotfile_to_system_for_file "${source_file}")
+    else # system directory ("/.." or "/..")
         local target_file=$(_dotfiles_convert_path_system_to_dotfile_for_file "${source_file}")
-        if [[ $? -ne 0 ]] ; then
-            return 1
-        fi
-        rm -f ${target_file}
-        if [[ $? -ne 0 ]] ; then
-            echo "_dotfiles_reinclude_file: Error: can not delete file \"${target_file}\"!"
-            return 1
-        fi
-        echo "file has been deleted: \"${target_file}\""
-        _dotfiles_include_file ${source_file}
-    done
+    fi
+
+    if [[ -L ${source_file} ]] ; then
+        echo -e "${BRed}error: file \"${source_file}\" is symlink!"
+        return 1
+    fi
+
+    local errormessage=$(cp --remove-destination ${source_file} ${target_file} 2>&1)
+    if [[ "${errormessage}" == "" ]] ; then
+        echo -e "${Green}cp --remove-destination ${source_file} ${target_file}${Color_Off}"
+    else
+        echo -e "${BRed}cp --remove-destination ${source_file} ${target_file}${Color_Off}"
+        echo -e "${BRed}error: ${errormessage}${Color_Off}"
+        return 1
+    fi
+
+    _dotfiles_fsetup_file ${target_file}
 
     return 0
 } #}}}
