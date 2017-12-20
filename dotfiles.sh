@@ -404,16 +404,16 @@ _dotfiles_include_file() { #{{{
         return 2
     fi
 
-    local errormessage=$(cp ${source_file} ${target_file} 2>&1)
+    local errormessage=$(mv ${source_file} ${target_file} 2>&1)
     if [[ "${errormessage}" == "" ]] ; then
-        echo -e "${Green}cp ${source_file} ${target_file}${Color_Off}"
+        echo -e "${Green}mv ${source_file} ${target_file}${Color_Off}"
     else
-        echo -e "${BRed}cp ${source_file} ${target_file}${Color_Off}"
+        echo -e "${BRed}mv ${source_file} ${target_file}${Color_Off}"
         echo -e "${BRed}error: ${errormessage}${Color_Off}"
         return 1
     fi
 
-    _dotfiles_fsetup_file ${target_file}
+    _dotfiles_setup_file ${target_file}
 
     return 0
 } #}}}
@@ -469,16 +469,16 @@ _dotfiles_reinclude_file() { #{{{
         return 1
     fi
 
-    local errormessage=$(cp --remove-destination ${source_file} ${target_file} 2>&1)
+    local errormessage=$(mv -f ${source_file} ${target_file} 2>&1)
     if [[ "${errormessage}" == "" ]] ; then
-        echo -e "${Green}cp --remove-destination ${source_file} ${target_file}${Color_Off}"
+        echo -e "${Green}mv -f ${source_file} ${target_file}${Color_Off}"
     else
-        echo -e "${BRed}cp --remove-destination ${source_file} ${target_file}${Color_Off}"
+        echo -e "${BRed}mv -f ${source_file} ${target_file}${Color_Off}"
         echo -e "${BRed}error: ${errormessage}${Color_Off}"
         return 1
     fi
 
-    _dotfiles_fsetup_file ${target_file}
+    _dotfiles_setup_file ${target_file}
 
     return 0
 } #}}}
@@ -532,20 +532,11 @@ _dotfiles_exclude_file() { #{{{
         return 3
     fi
 
-    local errormessage=$(cp --remove-destination ${source_file} ${target_file} 2>&1)
+    local errormessage=$(mv -f ${source_file} ${target_file} 2>&1)
     if [[ "${errormessage}" == "" ]] ; then
-        echo -e "${Green}cp --remove-destination ${source_file} ${target_file}${Color_Off}"
+        echo -e "${Green}mv -f ${source_file} ${target_file}${Color_Off}"
     else
-        echo -e "${BRed}cp --remove-destination ${source_file} ${target_file}${Color_Off}"
-        echo -e "${BRed}error: ${errormessage}${Color_Off}"
-        return 1
-    fi
-
-    local errormessage=$(rm ${source_file} 2>&1)
-    if [[ "${errormessage}" == "" ]] ; then
-        echo -e "${Green}rm ${source_file}${Color_Off}"
-    else
-        echo -e "${BRed}rm ${source_file}${Color_Off}"
+        echo -e "${BRed}mv -f ${source_file} ${target_file}${Color_Off}"
         echo -e "${BRed}error: ${errormessage}${Color_Off}"
         return 1
     fi
