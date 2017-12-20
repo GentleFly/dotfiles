@@ -526,6 +526,16 @@ _dotfiles_exclude_file() { #{{{
         echo -e "${BRed}error: ${errormessage}${Color_Off}"
         return 1
     fi
+
+    local errormessage=$(rm ${source_file} 2>&1)
+    if [[ "${errormessage}" == "" ]] ; then
+        echo -e "${Green}rm ${source_file}${Color_Off}"
+    else
+        echo -e "${BRed}rm ${source_file}${Color_Off}"
+        echo -e "${BRed}error: ${errormessage}${Color_Off}"
+        return 1
+    fi
+
     return 0
 } #}}}
 
