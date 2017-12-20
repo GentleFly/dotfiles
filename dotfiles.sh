@@ -153,20 +153,18 @@ _dotfiles_check_access() { #{{{
 _dotfiles_backup() { #{{{
     if [ $# -ne 1 ]
     then
-        echo "_dotfiles_backup: Error: bad parameters"
+        echo "_dotfiles_backup: error: bad parameters"
         return 1
     fi
 
     local l_backup_file=$(realpath ${1})
 
     if ! [ -f ${l_backup_file} ] ; then
-        echo "_dotfiles_backup: Error: file for backup not found!?"
+        echo "_dotfiles_backup: error: file for backup not found!?"
         echo -e "\t${l_backup_file}"
         return 3
     fi
 
-    #echo "${l_backup_file}"
-    #echo "${_dotfiles_backup_dir}${l_backup_file}"
     if ! [ -d $(dirname  "${_dotfiles_backup_dir}${l_backup_file}") ] ; then
         mkdir -p $(dirname  "${_dotfiles_backup_dir}${l_backup_file}")
         if [ $? -ne 0 ] ; then
@@ -174,11 +172,14 @@ _dotfiles_backup() { #{{{
         fi
     fi
 
-    cp -f "${l_backup_file}" "${_dotfiles_backup_dir}${l_backup_file}"
-    if [ $? -ne 0 ] ; then
-        return 5
+    local errormessage=$(cp -f ${l_backup_file} ${_dotfiles_backup_dir}${l_backup_file} 2>&1)
+    if [[ "${errormessage}" == "" ]] ; then
+        echo -e "${Green}cp -f ${l_backup_file} ${_dotfiles_backup_dir}${l_backup_file}${Color_Off}"
+    else
+        echo -e "${BRed}cp -f ${l_backup_file} ${_dotfiles_backup_dir}${l_backup_file}${Color_Off}"
+        echo -e "${BRed}${errormessage}${Color_Off}"
+        return 1
     fi
-    echo -e "file \"${l_backup_file}\" was copied to \"${_dotfiles_backup_dir}${l_backup_file}\""
 
     return 0
 } #}}}
@@ -201,7 +202,10 @@ _dotfiles_fsetup_file() { #{{{
         echo "dir $(dirname ${target_file}) was created!"
     fi
 
-    ln -sf ${source_file} ${target_file}
+    if ! [ -L ${target_file} ] && [ -f ${target_file} ] ; then
+        _dotfiles_backup ${target_file}
+    fi
+
     local errormessage=$(ln -sf ${source_file} ${target_file} 2>&1)
     if [[ "${errormessage}" == "" ]] ; then
         echo -e "${Green}ln -sf ${source_file} ${target_file}${Color_Off}"
@@ -244,9 +248,6 @@ _dotfiles_fsetup() { #{{{
             if [ $? -ne 0 ]; then
                 # TODO: ???
                 return 2
-            fi
-            if ! [ -L ${target_file} ] && [ -f ${target_file} ] ; then
-                _dotfiles_backup ${target_file}
             fi
             _dotfiles_fsetup_file ${source_file}
         done
