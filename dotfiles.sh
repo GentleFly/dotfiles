@@ -377,11 +377,18 @@ _dotfiles_include_file() { #{{{
     # $ _dotfiles_include_file /root_dotfiles.test
     # $ func_name src_file_from_sysfiles
 
-    #echo "${1}"
+    if [ $# == 0 ] ; then
+        echo -e "${BRed}error: arguments for files not find!${Color_Off}"
+        echo " use: dotfiles include {file}"
+        return 1
+    fi
 
-    # TODO: realpath -s
+    if [ ! -f ${1} ] ; then
+        echo -e "${BRed}error: file \"${1}\" not exist!${Color_Off}"
+        return 1
+    fi
     if [[ -L ${1} ]] ; then
-        echo -e "${BRed}error: file \"${1}\" is symlink!"
+        echo -e "${BRed}error: file \"${1}\" is symlink!${Color_Off}"
         return 1
     fi
     local source_file=$(realpath -s ${1})
@@ -389,7 +396,7 @@ _dotfiles_include_file() { #{{{
     if   [[ "${source_file}" == *"${_dotfiles_home_dir}"* ]] ||
          [[ "${source_file}" == *"${_dotfiles_root_dir}"* ]] ;
     then # dotfile's directory ("~/.dotfiles/home/" or "~/.dotfiles/root/)
-        echo -e "${BRed}error: file \"${1}\" locate in \"dotfiles\" dirs!"
+        echo -e "${BRed}error: file \"${1}\" locate in \"dotfiles\" dirs!${Color_Off}"
         return 1
     else # system directory ("/.." or "/..")
         local target_file=$(_dotfiles_convert_path_system_to_dotfile_for_file "${source_file}")
@@ -447,12 +454,19 @@ _dotfiles_include() { #{{{
 _dotfiles_reinclude_file() { #{{{
 
     if [ $# == 0 ] ; then
-        #_dotfiles_help
-        echo "_dotfiles_reinclude_file: error: arguments for files not find!"
+        echo -e "${BRed}error: arguments for files not find!${Color_Off}"
         echo " use: dotfiles reinclude {file}"
         return 1
     fi
 
+    if [ ! -f ${1} ] ; then
+        echo -e "${BRed}error: file \"${1}\" not exist!${Color_Off}"
+        return 1
+    fi
+    if [[ -L ${1} ]] ; then
+        echo -e "${BRed}error: file \"${1}\" is symlink!${Color_Off}"
+        return 1
+    fi
     local source_file=$(realpath -s ${1})
 
     if   [[ "${source_file}" == *"${_dotfiles_home_dir}"* ]] ||
@@ -462,11 +476,6 @@ _dotfiles_reinclude_file() { #{{{
         local source_file=$(_dotfiles_convert_path_dotfile_to_system_for_file "${source_file}")
     else # system directory ("/.." or "/..")
         local target_file=$(_dotfiles_convert_path_system_to_dotfile_for_file "${source_file}")
-    fi
-
-    if [[ -L ${source_file} ]] ; then
-        echo -e "${BRed}error: file \"${source_file}\" is symlink!"
-        return 1
     fi
 
     local errormessage=$(mv -f ${source_file} ${target_file} 2>&1)
