@@ -77,10 +77,11 @@ ls: cannot access '/home/user/.dotfiles/home/.bashrc': No such file or directory
 ls: cannot access '/home/user/.dotfiles/home/.vimrc': No such file or directory
 
 $ dotfiles include ~/.bashrc ~/.vimrc
-file "/home/user/.bashrc" was copied to "/home/user/.dotfiles/home/.bashrc"
-symlink was created: /home/user/.dotfiles/home/.bashrc
-file "/home/user/.vimrc" was copied to "/home/user/.dotfiles/home/.vimrc"
-symlink was created: /home/user/.dotfiles/home/.vimrc
+mv /home/user/.bashrc /home/user/.dotfiles/home/.bashrc
+ln -s /home/user/.dotfiles/home/.bashrc /home/user/.bashrc
+mv /home/user/.vimrc /home/user/.dotfiles/home/.vimrc
+ln -s /home/user/.dotfiles/home/.vimrc /home/user/.vimrc
+
 ```
 
 Then, in directory `~/.dotfiles/home/` will moved this files:
@@ -107,10 +108,8 @@ in home (~/) directory will be moved this files from `$DOTFILES_DIR/home`.
 
 ```bash
 $ dotfiles exclude ~/.bashrc ~/.vimrc
-symlink "/home/user/.bashrc" was replaced file "/home/user/.dotfiles/home/.bashrc"
-file "/home/user/.dotfiles/home/.bashrc" deleted!
-symlink "/home/user/.vimrc" was replaced file "/home/user/.dotfiles/home/.vimrc"
-file "/home/user/.dotfiles/home/.vimrc" deleted!
+mv -f /home/user/.dotfiles/home/.bashrc /home/user/.bashrc
+mv -f /home/user/.dotfiles/home/.vimrc /home/user/.vimrc
 
 $ ls -l ~/.dotfiles/home/.bashrc ~/.dotfiles/home/.vimrc
 ls: cannot access '/home/user/.dotfiles/home/.bashrc': No such file or directory
@@ -129,15 +128,29 @@ $ git clone https://github.com/GentleFly/dotfiles ~/dotfiles_script
 $ export DOTFILES_DIR="~/.dotfiles"
 $ source ~/dotfiles_script/dotfiles.sh
 $ dotfiles setup
-created symlink: "/home/user/.bashrc" -> "/home/user/.dotfiles/home/.bashrc"
-created symlink: "/home/user/.config/mc/filehighlight.ini" -> "/home/user/.dotfiles/home/.config/mc/filehighlight.ini"
-created symlink: "/home/user/.config/mc/mc.ext" -> "/home/user/.dotfiles/home/.config/mc/mc.ext"
-created symlink: "/home/user/.dircolors" -> "/home/user/.dotfiles/home/.dircolors"
-created symlink: "/home/user/.gitconfig" -> "/home/user/.dotfiles/home/.gitconfig"
-created symlink: "/home/user/.inputrc" -> "/home/user/.dotfiles/home/.inputrc"
-created symlink: "/home/user/.local/share/mc/skins/solarized.ini" -> "/home/user/.dotfiles/home/.local/share/mc/skins/solarized.ini"
-created symlink: "/home/user/.minttyrc" -> "/home/user/.dotfiles/home/.minttyrc"
-created symlink: "/home/user/.vimrc" -> "/home/user/.dotfiles/home/.vimrc"
+ln -s /home/user/.dotfiles/home/.bashrc /home/user/.bashrc
+ln -s /home/user/.dotfiles/home/.vimrc /home/user/.vimrc
+```
+
+or for forced setup, use `dotfiles fsetup`:
+
+```bash
+$ dotfiles fsetup
+ln -sf /home/user/.dotfiles/home/.bashrc /home/user/.bashrc
+ln -sf /home/user/.dotfiles/home/.vimrc /home/user/.vimrc
+
+```
+
+## List of dotfiles
+
+For printing setup dotfiles use command `dotfiles list`:
+
+```bash
+$ dotfiles list
+/home/user/.dotfiles/home/.bashrc <- /home/user/.bashrc
+/home/user/.dotfiles/home/.vimrc <- /home/user/.vimrc
+/home/user/.dotfiles/home/file.test <- file not setup (symlink not exist)!
+
 ```
 
 ## dotfiles help
