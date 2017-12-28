@@ -181,13 +181,15 @@ commands:
     unsetup   - Delete symlink in "system dir" for file in "dotfiles dir".
               - This command without arguments [files] will be applied to all
                 files recursively in "dotfiles dir".
+    list      - print setup dotfiles
     help      - print this massage
 
-"system dir"   - this "~/"(home) or "/"(root) directories
-"dotfiles dir" - this "~/.dotfilesrepo/home"(home dir in dotfiles dir) or
-                 "~/.dotfilesrepo/root"(dir root in dotfiles dir) directories
+"system dir"   - this "~/" or "/" (home or root) directories
+"dotfiles dir" - this "~/$DOTFILES_DIR/home"(home dir in dotfiles dir) or
+                 "~/$DOTFILES_DIR/root"(dir root in dotfiles dir) directories
 
-Current dotfiles dir: /home/GentleFly/.dotfiles
+Current dotfiles dir: $DOTFILES_DIR = /home/user/.dotfiles
+
 ```
 
 
