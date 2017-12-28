@@ -185,8 +185,8 @@ commands:
     help      - print this massage
 
 "system dir"   - this "~/" or "/" (home or root) directories
-"dotfiles dir" - this "~/$DOTFILES_DIR/home"(home dir in dotfiles dir) or
-                 "~/$DOTFILES_DIR/root"(dir root in dotfiles dir) directories
+"dotfiles dir" - this "$DOTFILES_DIR/home"(home dir in dotfiles dir) or
+                 "$DOTFILES_DIR/root"(dir root in dotfiles dir) directories
 
 Current dotfiles dir: $DOTFILES_DIR = /home/user/.dotfiles
 
