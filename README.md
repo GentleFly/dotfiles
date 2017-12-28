@@ -103,8 +103,8 @@ lrwxrwxrwx 1 user Отсутствует 37 Dec 15 07:46 /home/user/.vimrc -> /h
 ## Exclude your files from "dotfiles"
 
 For exclude yours file from "dotfiles" use command `dotfiles exclude`.
-Then, in home (~/) directory will be deleted symlinks for this files, and 
-in home (~/) directory will be moved this files from `$DOTFILES_DIR/home`.
+Then, in home directory will be deleted symlinks for this files, and 
+in home directory will be moved this files from `$DOTFILES_DIR/home`.
 
 ```bash
 $ dotfiles exclude ~/.bashrc ~/.vimrc
